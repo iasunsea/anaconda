@@ -69,8 +69,11 @@ def start_user_systemd():
     if not conf.system.can_start_user_systemd:
         log.debug("Don't start the user instance of systemd.")
         return
+    def user_preexec():
+            # to set dbus subprocess SIGINT handler
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    childproc = util.startProgram(["/usr/lib/systemd/systemd", "--user"])
+    childproc = util.startProgram(["/usr/lib/systemd/systemd", "--user"], preexec_fn=user_preexec)
     WatchProcesses.watch_process(childproc, "systemd")
 
 
